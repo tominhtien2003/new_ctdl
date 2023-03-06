@@ -1,82 +1,38 @@
 #include<bits/stdc++.h>
 using namespace std;
 #define int long long
-int arr[1001][1001];
-pair<int,int> direcs[4]={{1,0},{-1,0},{0,1},{0,-1}};
 main()
 {
-    std::ios_base::sync_with_stdio(0);std::cin.tie(0);std::cout.tie(0);
-    auto comp=[](auto &a,auto &b){return a[0]<b[0];};
-    int test;cin >> test;
-    while (test--)
+    ios_base::sync_with_stdio(0);cin.tie(0);cout.tie(0);
+    int n;cin >> n;
+    vector<int>dist(1e6,1e9);
+    dist[n]=0;
+    auto comp=[](auto &a,auto &b){return a.first>b.first;};
+    priority_queue<pair<int,int>,vector<pair<int,int>>,decltype(comp)>PQ(comp);
+    PQ.push({0,n});
+    while (!PQ.empty())
     {
-        int n,x,y;cin >> n >> x >> y;
-        if (x==y)
+        auto [x,y]=PQ.top();PQ.pop();
+        if (y==0) 
         {
-            cout << 0 << endl;
-            continue;
+            cout << x;
+            return 0;
         }
-        int dist[n][n];
-        memset(dist,1e9,sizeof(dist));
-        int cnt=0;
-        int left=0,right=n-1,top=0,bottom=n-1;
-        priority_queue<vector<int>,vector<vector<int>>,decltype(comp)>PQ(comp);
-        while (left<=right && top<=bottom)
+        for (int i=0;i<=15;i++)
         {
-            for (int col=left;col<right;col++) 
+            int left=y+pow(2,i);
+            int right=y-pow(2,i);
+            if (left<1e6 && dist[left]>x+1) 
             {
-                arr[top][col]=++cnt;
-                if (cnt==x) PQ.push({0,top,col});
+                PQ.push({x+1,left});
+                dist[left]=x+1;
             }
-            for (int row=top;row<bottom;row++) 
+            if (right>=0 && dist[right]>x+1) 
             {
-                arr[row][right]=++cnt;
-                if (cnt==x) PQ.push({0,row,right});
+                PQ.push({x+1,right});
+                dist[right]=x+1;
             }
-            for (int col=right;col>left;col--) 
-            {
-                arr[bottom][col]=++cnt;
-                if (cnt==x) PQ.push({0,bottom,col});
-            }
-            for (int row=bottom;row>top;row--) 
-            {
-                arr[row][left]=++cnt;
-                if (cnt==x) PQ.push({0,row,left});
-            }
-            if (left==right && left==bottom) 
-            {
-                arr[left][left]=++cnt;
-                if (cnt==x) PQ.push({0,left,left});
-            }
-            left++;right--;bottom--;top++;
-        }
-        dist[PQ.top()[1]][PQ.top()[2]]=0;
-        int res=-1,check=1;
-        while (!PQ.empty())
-        {
-            vector<int>top=PQ.top();PQ.pop();
-            if (dist[top[1]][top[2]]<top[0]) continue;
-            for (auto [x,y]:direcs)
-            {
-                int u=x+top[1],v=y+top[2];
-                if (u>=0 && v>=0 && u<n && v<n && __gcd(arr[u][v],arr[top[1]][top[2]])==1)
-                {
-                    if (arr[u][v]==y) 
-                    {
-                        res=top[0]+1;
-                        check=0;
-                        break;
-                    }
-                    if (dist[u][v]>top[0]+1)
-                    {
-                        dist[u][v]=top[0]+1;
-                        PQ.push({dist[u][v],u,v});
-                    }
-                }
-            }
-            if (check==0) break;
-        }
-        cout << res << endl;
+        } 
     }
-    return 0;
+    cout << -1;
 }
